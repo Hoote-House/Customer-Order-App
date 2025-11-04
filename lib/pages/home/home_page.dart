@@ -1,3 +1,4 @@
+import 'package:barista_apps/models/product.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
@@ -22,50 +23,52 @@ class _HomePageState extends State<HomePage> {
   // Data produk contoh dengan imageUrl
   final List<Product> allProducts = [
     Product(
+      "test-21312",
       'Cappucino',
       25000,
       'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQrel6xiovhaELr1f--k2jCl7tUC9i2hLsfAA&s',
     ),
     Product(
+      "test-31231",
       'Espresso Matcha',
       25000,
       'https://images.unsplash.com/photo-1541167760496-1628856ab772?q=80&w=800&auto=format&fit=crop',
     ),
-    Product(
-      'Latte',
-      28000,
-      'https://images.unsplash.com/photo-1509042239860-f550ce710b93?q=80&w=800&auto=format&fit=crop',
-    ),
-    Product(
-      'Mocha',
-      30000,
-      'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQOCj_gHGzcoR4OYogtn-3igpzgFB-oFUJqDQ&s',
-    ),
-    Product(
-      'Americano',
-      22000,
-      'https://majestycoffee.com/cdn/shop/articles/americano_b74a8154-454b-4f74-9a6c-95fbc4152ed3_800x.jpg?v=1684048195',
-    ),
-    Product(
-      'Macchiato',
-      30000,
-      'https://i.pinimg.com/736x/6a/34/66/6a3466c5c42f898b0f23889ca62b6724.jpg',
-    ),
-    Product(
-      'Flat White',
-      27000,
-      'https://i.pinimg.com/736x/51/22/61/5122619a7d0b5f44db9481b752f1aa10.jpg',
-    ),
-    Product(
-      'Affogato',
-      33000,
-      'https://i0.wp.com/cookingitalians.com/wp-content/uploads/2024/07/img-RDN4ZfjtP5hB22jQgDlEB.jpeg?fit=250%2C250&ssl=1',
-    ),
-    Product(
-      'Cortado',
-      26000,
-      'https://encrypted-tbn3.gstatic.com/images?q=tbn:ANd9GcQGGBpg6ycflPRFjBIagD5UAakrYVNcKA2j6RFnZkHTH4-zjj4JCJHskRmwyH0vawvoP_3YWkCm',
-    ),
+    // Product(
+    //   'Latte',
+    //   28000,
+    //   'https://images.unsplash.com/photo-1509042239860-f550ce710b93?q=80&w=800&auto=format&fit=crop',
+    // ),
+    // Product(
+    //   'Mocha',
+    //   30000,
+    //   'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQOCj_gHGzcoR4OYogtn-3igpzgFB-oFUJqDQ&s',
+    // ),
+    // Product(
+    //   'Americano',
+    //   22000,
+    //   'https://majestycoffee.com/cdn/shop/articles/americano_b74a8154-454b-4f74-9a6c-95fbc4152ed3_800x.jpg?v=1684048195',
+    // ),
+    // Product(
+    //   'Macchiato',
+    //   30000,
+    //   'https://i.pinimg.com/736x/6a/34/66/6a3466c5c42f898b0f23889ca62b6724.jpg',
+    // ),
+    // Product(
+    //   'Flat White',
+    //   27000,
+    //   'https://i.pinimg.com/736x/51/22/61/5122619a7d0b5f44db9481b752f1aa10.jpg',
+    // ),
+    // Product(
+    //   'Affogato',
+    //   33000,
+    //   'https://i0.wp.com/cookingitalians.com/wp-content/uploads/2024/07/img-RDN4ZfjtP5hB22jQgDlEB.jpeg?fit=250%2C250&ssl=1',
+    // ),
+    // Product(
+    //   'Cortado',
+    //   26000,
+    //   'https://encrypted-tbn3.gstatic.com/images?q=tbn:ANd9GcQGGBpg6ycflPRFjBIagD5UAakrYVNcKA2j6RFnZkHTH4-zjj4JCJHskRmwyH0vawvoP_3YWkCm',
+    // ),
   ];
 
   final List<CartEntry> cart = [];
@@ -615,17 +618,17 @@ class _HomePageState extends State<HomePage> {
       ),
       child: Scaffold(
         backgroundColor: Colors.grey[50],
-        appBar: AppBar(
-          backgroundColor: Colors.brown[700],
-          elevation: 0,
-          title: Text(
-            'Barista Shop',
-            style: GoogleFonts.poppins(
-              color: Colors.white,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-        ),
+        // appBar: AppBar(
+        //   backgroundColor: Colors.brown[700],
+        //   elevation: 0,
+        //   title: Text(
+        //     'Barista Shop',
+        //     style: GoogleFonts.poppins(
+        //       color: Colors.white,
+        //       fontWeight: FontWeight.bold,
+        //     ),
+        //   ),
+        // ),
         body: SafeArea(
           child: Stack(
             children: [
@@ -637,6 +640,7 @@ class _HomePageState extends State<HomePage> {
                       width: 220,
                       padding: const EdgeInsets.all(12),
                       child: Card(
+                        color: Colors.white,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12),
                         ),
@@ -1196,22 +1200,6 @@ class _HomePageState extends State<HomePage> {
       },
     );
   }
-}
-
-class Product {
-  final String name;
-  final int price;
-  final String imageUrl;
-  Product(this.name, this.price, this.imageUrl);
-
-  @override
-  bool operator ==(Object other) =>
-      other is Product &&
-      other.name == name &&
-      other.price == price &&
-      other.imageUrl == imageUrl;
-  @override
-  int get hashCode => name.hashCode ^ price.hashCode ^ imageUrl.hashCode;
 }
 
 class CartEntry {

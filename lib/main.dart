@@ -1,22 +1,22 @@
+import 'package:barista_apps/routes/app_route.dart';
+import 'package:barista_apps/routes/app_route_named.dart';
 import 'package:flutter/material.dart';
-import 'pages/HomePage.dart';
+import 'package:get/get_navigation/get_navigation.dart';
 
-void main(){
-  runApp(MyApp());
+void main() {
+  runApp(OrderCustomerCast());
 }
 
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+class OrderCustomerCast extends StatelessWidget {
+  const OrderCustomerCast({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return GetMaterialApp(
+      title: 'Order Customer Cast',
       debugShowCheckedModeBanner: false,
-      title: 'Movaka',
-      home: const HomePage(),
-      routes: {
-        '/home': (context) => const HomePage(), 
-      },
+      getPages: AppRoute.routes,
+      initialRoute: AppRouteNamed.home,
     );
   }
 }
