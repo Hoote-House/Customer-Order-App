@@ -7,6 +7,7 @@ class ProductController extends GetxController {
   var productsCat = <ProductCategory>[].obs;
   var productDetail = Rxn<ProductDetail>();
   var isLoading = true.obs;
+  var isDetailLoad = false.obs;
 
   ProductService service = ProductService();
 
@@ -25,14 +26,14 @@ class ProductController extends GetxController {
 
   Future<void> fetchProductDetail({required String id}) async {
     try {
-      isLoading(true);
+      isDetailLoad(true);
       final product = await service.getProductDetail(id: id);
 
       productDetail.value = product;
     } catch (e) {
       Get.snackbar("Error", e.toString());
     } finally {
-      isLoading(false);
+      isDetailLoad(false);
     }
   }
 }

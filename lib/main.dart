@@ -16,7 +16,7 @@ class OrderCustomerCast extends StatelessWidget {
       title: 'Order Customer Cast',
       debugShowCheckedModeBanner: false,
       getPages: AppRoute.routes,
-      initialRoute: AppRouteNamed.home,
+      initialRoute: AppRouteNamed.entry,
     );
   }
 }
