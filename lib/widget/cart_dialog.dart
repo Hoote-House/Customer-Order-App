@@ -18,24 +18,6 @@ void showCartDialog(BuildContext context) {
         builder: (context, setState) {
           int total = cartC.getTotal();
 
-          void increaseQty(int idx) {
-            setState(() => cart[idx].quantity++);
-          }
-
-          void decreaseQty(int idx) {
-            if (cart[idx].quantity > 1) {
-              setState(() => cart[idx].quantity--);
-            }
-          }
-
-          void removeItem(int idx) {
-            setState(() => cart.removeAt(idx));
-          }
-
-          void clearCart() {
-            setState(() => cart.clear());
-          }
-
           return Dialog(
             insetPadding: const EdgeInsets.symmetric(
               horizontal: 24,
@@ -52,7 +34,7 @@ void showCartDialog(BuildContext context) {
                       Icon(Icons.clear, color: Colors.red, size: 18),
                       GestureDetector(
                         onTap: () {
-                          clearCart();
+                          cartC.clearCart();
                         },
                         child: Text(
                           ' Clear',
@@ -124,14 +106,6 @@ void showCartDialog(BuildContext context) {
                                           fontSize: 15,
                                         ),
                                       ),
-                                      if (e.optionsSummary.isNotEmpty)
-                                        Text(
-                                          e.optionsSummary,
-                                          style: GoogleFonts.poppins(
-                                            color: Colors.black54,
-                                            fontSize: 13,
-                                          ),
-                                        ),
                                     ],
                                   ),
                                 ),
@@ -144,7 +118,8 @@ void showCartDialog(BuildContext context) {
                                             Icons.add_circle,
                                             color: Colors.green,
                                           ),
-                                          onPressed: () => increaseQty(idx),
+                                          onPressed: () =>
+                                              cartC.increaseQty(idx),
                                           iconSize: 24,
                                           padding: EdgeInsets.zero,
                                         ),
@@ -160,7 +135,8 @@ void showCartDialog(BuildContext context) {
                                             Icons.remove_circle,
                                             color: Colors.red,
                                           ),
-                                          onPressed: () => decreaseQty(idx),
+                                          onPressed: () =>
+                                              cartC.decreaseQty(idx),
                                           iconSize: 24,
                                           padding: EdgeInsets.zero,
                                         ),
@@ -171,7 +147,7 @@ void showCartDialog(BuildContext context) {
                                         Icons.delete,
                                         color: Colors.redAccent,
                                       ),
-                                      onPressed: () => removeItem(idx),
+                                      onPressed: () => cartC.removeCart(idx),
                                       tooltip: 'Remove',
                                       iconSize: 20,
                                       padding: EdgeInsets.zero,
