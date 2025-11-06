@@ -1,6 +1,8 @@
 import 'package:barista_apps/config/config.dart';
 import 'package:barista_apps/models/category.dart';
 import 'package:barista_apps/models/product.dart';
+import 'package:barista_apps/utils/device_util.dart';
+import 'package:barista_apps/utils/hash_util.dart';
 import 'package:dio/dio.dart';
 
 class ProductService {
@@ -8,13 +10,23 @@ class ProductService {
   static const baseUrl = AppConfig.apiUrl;
 
   Future<List<ProductCategory>> getAllProduct() async {
+    var deviceID = await DeviceUtil.getDeviceID();
+    var signKey = hashSHA512(
+      deviceID + AppConfig.deviceChannel + AppConfig.apiKey,
+    );
+
     try {
-      final header = {"X-Device": "", "Device-Sign-Key": ""};
+      final header = {
+        "X-Device": "$deviceID:${AppConfig.deviceChannel}",
+        "Device-Sign-Key": signKey,
+      };
 
       final response = await dio.get(
-        "$baseUrl/products",
+        "$baseUrl/_device/products",
         options: Options(headers: header),
       );
+
+      if (response.statusCode == 401) throw Exception("401");
 
       if (response.statusCode != 200) throw Exception();
 
@@ -31,11 +43,19 @@ class ProductService {
   }
 
   Future<ProductDetail> getProductDetail({required String id}) async {
+    var deviceID = await DeviceUtil.getDeviceID();
+    var signKey = hashSHA512(
+      deviceID + AppConfig.deviceChannel + AppConfig.apiKey,
+    );
+
     try {
-      final header = {"X-Device": "", "Device-Sign-Key": ""};
+      final header = {
+        "X-Device": "$deviceID:${AppConfig.deviceChannel}",
+        "Device-Sign-Key": signKey,
+      };
 
       final response = await dio.get(
-        "$baseUrl/products/$id",
+        "$baseUrl/_device/products/$id",
         options: Options(headers: header),
       );
 

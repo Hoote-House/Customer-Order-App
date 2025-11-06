@@ -9,3 +9,11 @@ String hashMD5(String input) {
 
   return hexDigest;
 }
+
+String hashSHA512(String input) {
+  List<int> bytes = utf8.encode(input); // Encode the string to UTF-8 bytes
+  Digest sha512hash = sha512.convert(bytes);
+  String hexDigest = sha512hash.toString();
+
+  return hexDigest;
+}

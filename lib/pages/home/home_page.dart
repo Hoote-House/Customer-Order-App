@@ -1,7 +1,13 @@
+import 'package:barista_apps/controllers/cart_controller.dart';
+import 'package:barista_apps/controllers/product_controller.dart';
+import 'package:barista_apps/models/cart.dart';
+import 'package:barista_apps/models/category.dart';
 import 'package:barista_apps/models/product.dart';
+import 'package:barista_apps/utils/rupiah_format.dart';
+import 'package:barista_apps/widget/cart_dialog.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:intl/intl.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -11,14 +17,8 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  // Kategori sederhana
-  final List<String> categories = [
-    'Coffee',
-    'Matcha',
-    'Pastry',
-    'Artisan Bread',
-  ];
-  String selectedCategory = 'Coffee';
+  final CartController cartC = Get.find<CartController>(tag: 'cart');
+  final ProductController productC = Get.find<ProductController>(tag: 'device');
 
   // Data produk contoh dengan imageUrl
   final List<Product> allProducts = [
@@ -71,529 +71,10 @@ class _HomePageState extends State<HomePage> {
     // ),
   ];
 
-  final List<CartEntry> cart = [];
-
-  String formatRp(int value) {
-    final format = NumberFormat.currency(
-      locale: 'id_ID',
-      symbol: 'Rp ',
-      decimalDigits: 0,
-    );
-    return format.format(value);
-  }
-
-  void addEntryToCart(CartEntry entry) {
-    setState(() {
-      cart.add(entry);
-    });
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(
-          '${entry.product.name} ditambahkan ke keranjang',
-          style: GoogleFonts.poppins(),
-        ),
-        duration: const Duration(milliseconds: 700),
-        backgroundColor: Colors.brown[700],
-      ),
-    );
-  }
-
-  // Hitung total dari cart entries
-  int getTotal() {
-    int total = 0;
-    for (final e in cart) {
-      final int unit = e.product.price + e.extrasPrice;
-      total += unit * e.quantity;
-    }
-    return total;
-  }
-
-  // Hitung jumlah item total di keranjang
-  int getCount() {
-    int count = 0;
-    for (final e in cart) {
-      count += e.quantity;
-    }
-    return count;
-  }
-
-  // Tentukan jumlah kolom grid berdasarkan lebar layar (sederhana)
   int gridCountForWidth(double width) {
     if (width >= 1050) return 3;
     if (width >= 800) return 2;
     return 1;
-  }
-
-  void showCartDialog(BuildContext context) {
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (ctx) {
-        return StatefulBuilder(
-          builder: (context, setState) {
-            int total = getTotal();
-
-            void increaseQty(int idx) {
-              setState(() => cart[idx].quantity++);
-            }
-
-            void decreaseQty(int idx) {
-              if (cart[idx].quantity > 1) {
-                setState(() => cart[idx].quantity--);
-              }
-            }
-
-            void removeItem(int idx) {
-              setState(() => cart.removeAt(idx));
-            }
-
-            void clearCart() {
-              setState(() => cart.clear());
-            }
-
-            return Dialog(
-              insetPadding: const EdgeInsets.symmetric(
-                horizontal: 24,
-                vertical: 24,
-              ),
-              child: Container(
-                width: 420,
-                padding: const EdgeInsets.all(18),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Row(
-                      children: [
-                        Icon(Icons.clear, color: Colors.red, size: 18),
-                        GestureDetector(
-                          onTap: () {
-                            clearCart();
-                          },
-                          child: Text(
-                            ' Clear',
-                            style: GoogleFonts.poppins(
-                              color: Colors.red,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 15,
-                            ),
-                          ),
-                        ),
-                        Spacer(),
-                        IconButton(
-                          icon: Icon(Icons.close),
-                          onPressed: () => Navigator.pop(context),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 8),
-                    if (cart.isEmpty)
-                      Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 32),
-                        child: Text(
-                          'Keranjang kosong',
-                          style: GoogleFonts.poppins(fontSize: 16),
-                        ),
-                      )
-                    else
-                      Column(
-                        children: [
-                          ...cart.asMap().entries.map((entry) {
-                            int idx = entry.key;
-                            CartEntry e = entry.value;
-                            return Container(
-                              margin: const EdgeInsets.symmetric(vertical: 8),
-                              child: Row(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  ClipRRect(
-                                    borderRadius: BorderRadius.circular(8),
-                                    child: Image.network(
-                                      e.product.imageUrl,
-                                      width: 80,
-                                      height: 80,
-                                      fit: BoxFit.cover,
-                                      errorBuilder: (_, __, ___) => Container(
-                                        width: 80,
-                                        height: 80,
-                                        color: Colors.brown[200],
-                                      ),
-                                    ),
-                                  ),
-                                  const SizedBox(width: 12),
-                                  Expanded(
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Text(
-                                          e.product.name,
-                                          style: GoogleFonts.poppins(
-                                            fontWeight: FontWeight.bold,
-                                            fontSize: 16,
-                                          ),
-                                        ),
-                                        Text(
-                                          formatRp(e.product.price),
-                                          style: GoogleFonts.poppins(
-                                            fontWeight: FontWeight.bold,
-                                            fontSize: 15,
-                                          ),
-                                        ),
-                                        if (e.optionsSummary.isNotEmpty)
-                                          Text(
-                                            e.optionsSummary,
-                                            style: GoogleFonts.poppins(
-                                              color: Colors.black54,
-                                              fontSize: 13,
-                                            ),
-                                          ),
-                                      ],
-                                    ),
-                                  ),
-                                  Column(
-                                    children: [
-                                      Row(
-                                        children: [
-                                          IconButton(
-                                            icon: Icon(
-                                              Icons.add_circle,
-                                              color: Colors.green,
-                                            ),
-                                            onPressed: () => increaseQty(idx),
-                                            iconSize: 24,
-                                            padding: EdgeInsets.zero,
-                                          ),
-                                          Text(
-                                            '${e.quantity}',
-                                            style: GoogleFonts.poppins(
-                                              fontWeight: FontWeight.bold,
-                                              fontSize: 16,
-                                            ),
-                                          ),
-                                          IconButton(
-                                            icon: Icon(
-                                              Icons.remove_circle,
-                                              color: Colors.red,
-                                            ),
-                                            onPressed: () => decreaseQty(idx),
-                                            iconSize: 24,
-                                            padding: EdgeInsets.zero,
-                                          ),
-                                        ],
-                                      ),
-                                      IconButton(
-                                        icon: Icon(
-                                          Icons.delete,
-                                          color: Colors.redAccent,
-                                        ),
-                                        onPressed: () => removeItem(idx),
-                                        tooltip: 'Remove',
-                                        iconSize: 20,
-                                        padding: EdgeInsets.zero,
-                                      ),
-                                    ],
-                                  ),
-                                ],
-                              ),
-                            );
-                          }).toList(),
-                        ],
-                      ),
-                    const SizedBox(height: 12),
-                    Divider(),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          'Total',
-                          style: GoogleFonts.poppins(
-                            fontWeight: FontWeight.w600,
-                            fontSize: 17,
-                          ),
-                        ),
-                        Text(
-                          formatRp(getTotal()),
-                          style: GoogleFonts.poppins(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 17,
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 18),
-                    SizedBox(
-                      width: double.infinity,
-                      height: 48,
-                      child: ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.brown[700],
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                        ),
-                        onPressed: cart.isEmpty
-                            ? null
-                            : () {
-                                // Order action here
-                                Navigator.pop(context);
-                                showPaymentDialog(context, getTotal());
-                              },
-                        child: Text(
-                          'ORDER',
-                          style: GoogleFonts.poppins(
-                            fontWeight: FontWeight.bold,
-                            color: Colors.white,
-                            fontSize: 16,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            );
-          },
-        );
-      },
-    );
-  }
-
-  void showPaymentDialog(BuildContext context, int total) {
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (ctx) {
-        String selectedMethod = 'QRIS';
-        return StatefulBuilder(
-          builder: (dialogContext, setStateDialog) {
-            return Dialog(
-              insetPadding: const EdgeInsets.symmetric(
-                horizontal: 24,
-                vertical: 24,
-              ),
-              child: Padding(
-                padding: const EdgeInsets.all(18),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text(
-                      'Payment',
-                      style: GoogleFonts.poppins(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 20,
-                      ),
-                    ),
-                    const SizedBox(height: 18),
-                    Align(
-                      alignment: Alignment.centerLeft,
-                      child: Text(
-                        'Select Payment Method',
-                        style: GoogleFonts.poppins(
-                          fontWeight: FontWeight.w600,
-                          fontSize: 16,
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 10),
-                    Card(
-                      color: selectedMethod == 'QRIS'
-                          ? Colors.brown[50]
-                          : Colors.white,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      child: ListTile(
-                        leading: Icon(Icons.qr_code, color: Colors.brown[700]),
-                        title: Text(
-                          'QRIS',
-                          style: GoogleFonts.poppins(
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        subtitle: Text(
-                          'Scan QR to pay',
-                          style: GoogleFonts.poppins(fontSize: 13),
-                        ),
-                        trailing: Radio<String>(
-                          value: 'QRIS',
-                          groupValue: selectedMethod,
-                          onChanged: (v) =>
-                              setState(() => selectedMethod = v ?? 'QRIS'),
-                        ),
-                        onTap: () => setState(() => selectedMethod = 'QRIS'),
-                      ),
-                    ),
-                    const SizedBox(height: 18),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          'Total',
-                          style: GoogleFonts.poppins(
-                            fontWeight: FontWeight.w600,
-                            fontSize: 16,
-                          ),
-                        ),
-                        Text(
-                          formatRp(total),
-                          style: GoogleFonts.poppins(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 16,
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 24),
-                    SizedBox(
-                      width: double.infinity,
-                      height: 48,
-                      child: ElevatedButton.icon(
-                        icon: Icon(Icons.payment, color: Colors.white),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.brown[700],
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                        ),
-                        onPressed: () {
-                          Navigator.pop(ctx);
-                          showQrisBarcodeDialog(
-                            context, // <-- gunakan context utama
-                            total,
-                            () {
-                              // Gunakan context utama untuk showSnackBar dan setState
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
-                                  content: Text(
-                                    'Payment successful!',
-                                    style: GoogleFonts.poppins(),
-                                  ),
-                                  backgroundColor: Colors.green[700],
-                                ),
-                              );
-                              setState(() => cart.clear());
-                            },
-                          );
-                        },
-                        label: Text(
-                          'Pay',
-                          style: GoogleFonts.poppins(
-                            fontWeight: FontWeight.bold,
-                            color: Colors.white,
-                            fontSize: 16,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            );
-          },
-        );
-      },
-    );
-  }
-
-  void showQrisBarcodeDialog(
-    BuildContext context,
-    int total,
-    VoidCallback onPaymentSuccess,
-  ) {
-    showDialog(
-      context: context, // Use the passed context
-      builder: (BuildContext dialogContext) {
-        // Get fresh context from builder
-        return Dialog(
-          insetPadding: const EdgeInsets.symmetric(
-            horizontal: 24,
-            vertical: 24,
-          ),
-          child: Padding(
-            padding: const EdgeInsets.all(18),
-            child: SingleChildScrollView(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(
-                    'Scan QRIS',
-                    style: GoogleFonts.poppins(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 20,
-                    ),
-                  ),
-                  const SizedBox(height: 18),
-                  Container(
-                    width: 180,
-                    height: 180,
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(16),
-                      border: Border.all(color: Colors.brown[100]!),
-                    ),
-                    child: Center(
-                      child: Image.network(
-                        'https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=QRIS_DUMMY_PAYMENT',
-                        width: 160,
-                        height: 160,
-                        fit: BoxFit.contain,
-                        errorBuilder: (_, __, ___) => Icon(
-                          Icons.qr_code,
-                          size: 80,
-                          color: Colors.brown[300],
-                        ),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 18),
-                  Text(
-                    'Total: ${formatRp(total)}',
-                    style: GoogleFonts.poppins(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 16,
-                    ),
-                  ),
-                  const SizedBox(height: 12),
-                  Text(
-                    'Show this QR code to your payment app.',
-                    style: GoogleFonts.poppins(
-                      fontSize: 13,
-                      color: Colors.black54,
-                    ),
-                    textAlign: TextAlign.center,
-                  ),
-                  const SizedBox(height: 24),
-                  SizedBox(
-                    width: double.infinity,
-                    height: 48,
-                    child: ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.green[700],
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                      ),
-                      onPressed: () {
-                        Navigator.pop(dialogContext); // Use dialogContext here
-                        onPaymentSuccess();
-                      },
-                      child: Text(
-                        'Done',
-                        style: GoogleFonts.poppins(
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
-                          fontSize: 16,
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        );
-      },
-    );
   }
 
   @override
@@ -601,7 +82,9 @@ class _HomePageState extends State<HomePage> {
     final size = MediaQuery.of(context).size;
     final bool isTablet = size.width >= 800;
     final int gridCross = gridCountForWidth(size.width);
-    final products = allProducts;
+
+    final categories = productC.productsCat;
+    final List<CartEntry> cart = cartC.cart;
 
     return Theme(
       data: Theme.of(context).copyWith(
@@ -618,212 +101,217 @@ class _HomePageState extends State<HomePage> {
       ),
       child: Scaffold(
         backgroundColor: Colors.grey[50],
-        // appBar: AppBar(
-        //   backgroundColor: Colors.brown[700],
-        //   elevation: 0,
-        //   title: Text(
-        //     'Barista Shop',
-        //     style: GoogleFonts.poppins(
-        //       color: Colors.white,
-        //       fontWeight: FontWeight.bold,
-        //     ),
-        //   ),
-        // ),
         body: SafeArea(
-          child: Stack(
-            children: [
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  if (isTablet)
-                    Container(
-                      width: 220,
-                      padding: const EdgeInsets.all(12),
-                      child: Card(
-                        color: Colors.white,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: Padding(
-                          padding: const EdgeInsets.all(12),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                'Category',
-                                style: GoogleFonts.poppins(
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                              const SizedBox(height: 10),
-                              for (final c in categories)
-                                GestureDetector(
-                                  onTap: () =>
-                                      setState(() => selectedCategory = c),
-                                  child: Container(
-                                    margin: const EdgeInsets.symmetric(
-                                      vertical: 6,
-                                    ),
-                                    padding: const EdgeInsets.symmetric(
-                                      vertical: 10,
-                                      horizontal: 8,
-                                    ),
-                                    decoration: BoxDecoration(
-                                      color: c == selectedCategory
-                                          ? Colors.brown[50]
-                                          : Colors.transparent,
-                                      borderRadius: BorderRadius.circular(8),
-                                    ),
-                                    child: Text(c),
-                                  ),
-                                ),
-                            ],
+          child: Obx(
+            () => Stack(
+              children: [
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    if (isTablet)
+                      Container(
+                        width: 220,
+                        padding: const EdgeInsets.all(12),
+                        child: Card(
+                          color: Colors.white,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
                           ),
-                        ),
-                      ),
-                    ),
-                  Expanded(
-                    child: Padding(
-                      padding: EdgeInsets.symmetric(
-                        horizontal: isTablet ? 24 : 12,
-                        vertical: 16,
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Text(
-                                selectedCategory,
-                                style: const TextStyle(
-                                  fontSize: 24,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                              if (!isTablet)
-                                Expanded(
-                                  child: SizedBox(
-                                    height: 40,
-                                    child: ListView(
-                                      scrollDirection: Axis.horizontal,
-                                      children: [
-                                        for (final c in categories)
-                                          Padding(
-                                            padding: const EdgeInsets.only(
-                                              right: 8,
-                                            ),
-                                            child: ChoiceChip(
-                                              label: Text(c),
-                                              selected: c == selectedCategory,
-                                              onSelected: (_) => setState(
-                                                () => selectedCategory = c,
-                                              ),
-                                            ),
-                                          ),
-                                      ],
-                                    ),
-                                  ),
-                                ),
-                            ],
-                          ),
-                          const SizedBox(height: 8),
-                          const Divider(),
-                          const SizedBox(height: 12),
-                          // Grid produk
-                          Expanded(
-                            child: GridView.count(
-                              crossAxisCount: gridCross,
-                              crossAxisSpacing: 12,
-                              mainAxisSpacing: 12,
-                              childAspectRatio: 1.05,
-                              children: products.map((p) {
-                                return ProductCard(
-                                  product: p,
-                                  onTap: () => showProductDialog(context, p),
-                                  priceText: formatRp(p.price),
-                                );
-                              }).toList(),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-              // Ringkasan keranjang di bawah
-              Positioned(
-                bottom: 16,
-                left: 0,
-                right: 0,
-                child: Center(
-                  child: Container(
-                    width: isTablet ? 520 : size.width * 0.95,
-                    padding: const EdgeInsets.all(8),
-                    child: Card(
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      elevation: 4,
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 12,
-                          vertical: 10,
-                        ),
-                        child: Row(
-                          children: [
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    'Total',
-                                    style: GoogleFonts.poppins(
-                                      fontWeight: FontWeight.bold,
-                                      color: Colors.black54,
-                                    ),
-                                  ),
-                                  const SizedBox(height: 6),
-                                  Text(
-                                    formatRp(getTotal()),
-                                    style: const TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            SizedBox(
-                              width: isTablet ? 200 : 120,
-                              height: 44,
-                              child: ElevatedButton(
-                                onPressed: () {
-                                  showCartDialog(context);
-                                },
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: Colors.brown[700],
-                                ),
-                                child: Text(
-                                  'Cart (${getCount()})',
+                          child: Padding(
+                            padding: const EdgeInsets.all(12),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'Category',
                                   style: GoogleFonts.poppins(
-                                    color: Colors.white,
                                     fontWeight: FontWeight.bold,
                                   ),
                                 ),
+                                const SizedBox(height: 10),
+                                for (final c in categories.asMap().entries)
+                                  GestureDetector(
+                                    onTap: () {},
+                                    child: Container(
+                                      margin: const EdgeInsets.symmetric(
+                                        vertical: 6,
+                                      ),
+                                      padding: const EdgeInsets.symmetric(
+                                        vertical: 10,
+                                        horizontal: 8,
+                                      ),
+                                      decoration: BoxDecoration(
+                                        color: c.value.name == c.key
+                                            ? Colors.brown[50]
+                                            : Colors.transparent,
+                                        borderRadius: BorderRadius.circular(8),
+                                      ),
+                                      child: Text(c.value.name),
+                                    ),
+                                  ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+
+                    Expanded(
+                      child: Padding(
+                        padding: EdgeInsets.symmetric(
+                          horizontal: isTablet ? 24 : 12,
+                          vertical: 16,
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            ...categories.map(
+                              (category) => _productCategory(
+                                gridCross,
+                                category,
+                                context,
                               ),
                             ),
                           ],
                         ),
                       ),
                     ),
+                  ],
+                ),
+                Positioned(
+                  bottom: 16,
+                  left: 0,
+                  right: 0,
+                  child: Center(
+                    child: Container(
+                      width: isTablet ? 520 : size.width * 0.95,
+                      padding: const EdgeInsets.all(8),
+                      child: Card(
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        elevation: 4,
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 12,
+                            vertical: 10,
+                          ),
+                          child: Row(
+                            children: [
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      'Total',
+                                      style: GoogleFonts.poppins(
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.black54,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 6),
+                                    Text(
+                                      formatRp(cartC.getTotal()),
+                                      style: const TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              SizedBox(
+                                width: isTablet ? 200 : 120,
+                                height: 44,
+                                child: ElevatedButton(
+                                  onPressed: () {
+                                    showCartDialog(context);
+                                  },
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: Colors.brown[700],
+                                  ),
+                                  child: Text(
+                                    'Cart (${cartC.getCount()})',
+                                    style: GoogleFonts.poppins(
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
                   ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),
+    );
+  }
+
+  Column _productCategory(
+    int gridCross,
+    ProductCategory category,
+    BuildContext context,
+  ) {
+    return Column(
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              category.name,
+              style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+            ),
+            // if (!isTablet)
+            //   Expanded(
+            //     child: SizedBox(
+            //       height: 40,
+            //       child: ListView(
+            //         scrollDirection: Axis.horizontal,
+            //         children: [
+            //           for (final c in categories)
+            //             Padding(
+            //               padding: const EdgeInsets.only(
+            //                 right: 8,
+            //               ),
+            //               child: ChoiceChip(
+            //                 label: Text(c.name),
+            //                 selected: c.name == selectedCategory,
+            //                 onSelected: (_) => setState(
+            //                   () => selectedCategory = c.name,
+            //                 ),
+            //               ),
+            //             ),
+            //         ],
+            //       ),
+            //     ),
+            //   ),
+          ],
+        ),
+        const SizedBox(height: 8),
+        const Divider(),
+        const SizedBox(height: 12),
+        // Grid produk
+        Expanded(
+          child: GridView.count(
+            crossAxisCount: gridCross,
+            crossAxisSpacing: 12,
+            mainAxisSpacing: 12,
+            childAspectRatio: 1.05,
+            children: category.products.map((p) {
+              return ProductCard(
+                product: p,
+                onTap: () => showProductDialog(context, p),
+                priceText: formatRp(p.price),
+              );
+            }).toList(),
+          ),
+        ),
+      ],
     );
   }
 
@@ -1178,7 +666,7 @@ class _HomePageState extends State<HomePage> {
                               extrasPrice: extras,
                               optionsSummary: opts,
                             );
-                            addEntryToCart(entry);
+                            cartC.addCart(entry);
                             Navigator.pop(context);
                           },
                           child: Text(
@@ -1200,19 +688,6 @@ class _HomePageState extends State<HomePage> {
       },
     );
   }
-}
-
-class CartEntry {
-  final Product product;
-  int quantity;
-  final int extrasPrice;
-  final String optionsSummary;
-  CartEntry({
-    required this.product,
-    required this.quantity,
-    required this.extrasPrice,
-    required this.optionsSummary,
-  });
 }
 
 // Pilihan dengan harga

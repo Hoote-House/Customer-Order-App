@@ -1,5 +1,7 @@
+import 'package:barista_apps/controllers/device_controller.dart';
 import 'package:barista_apps/models/category.dart';
 import 'package:barista_apps/models/product.dart';
+import 'package:barista_apps/routes/app_route_named.dart';
 import 'package:barista_apps/services/product_service.dart';
 import 'package:get/get.dart';
 
@@ -9,6 +11,8 @@ class ProductController extends GetxController {
   var isLoading = true.obs;
   var isDetailLoad = false.obs;
 
+  var deviceC = Get.find<DeviceController>(tag: "device");
+
   ProductService service = ProductService();
 
   Future<void> fetchProductCategory() async {
@@ -17,7 +21,13 @@ class ProductController extends GetxController {
       final prodCategory = await service.getAllProduct();
 
       productsCat.value = prodCategory;
+      deviceC.deviceValid(true);
     } catch (e) {
+      if (e.toString() == "401") {
+        Get.offAllNamed(AppRouteNamed.entry);
+      }
+
+      deviceC.deviceValid(false);
       Get.snackbar("Error", e.toString());
     } finally {
       isLoading(false);
