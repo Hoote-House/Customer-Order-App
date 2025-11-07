@@ -7,17 +7,16 @@ class DeviceController extends GetxController {
   var internetOk = false.obs;
 
   @override
-  void onInit() {
+  void onInit() async {
     super.onInit();
-
-    checkInternet();
   }
 
-  void checkInternet() async {
+  Future<void> checkInternet() async {
     try {
       final result = await InternetAddress.lookup('example.com');
       if (result.isNotEmpty && result[0].rawAddress.isNotEmpty) {
         internetOk(true);
+        print(result);
       }
     } on SocketException catch (_) {
       internetOk(false);

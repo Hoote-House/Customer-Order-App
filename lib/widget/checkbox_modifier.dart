@@ -1,10 +1,9 @@
 import 'package:barista_apps/controllers/cart_controller.dart';
 import 'package:barista_apps/models/customization.dart';
 import 'package:flutter/material.dart';
-import 'package:get/get_rx/get_rx.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-Column radioModifier(
+Column checkboxModifier(
   Customization customization,
   CartController cartC,
   // int cartIdx,
@@ -19,9 +18,11 @@ Column radioModifier(
         ),
       ),
       ...customization.options.map(
-        (e) => ListTile(
-          title: Text(e.label),
-          leading: Radio<CustomizationOption>(value: e),
+        (e) => CheckboxListTile(
+          value: cartC.curCart.value!.customizations.contains(e),
+          onChanged: (value) {
+            cartC.toggleCustomization(e);
+          },
         ),
       ),
     ],

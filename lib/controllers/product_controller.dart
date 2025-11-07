@@ -1,7 +1,6 @@
 import 'package:barista_apps/controllers/device_controller.dart';
 import 'package:barista_apps/models/category.dart';
 import 'package:barista_apps/models/product.dart';
-import 'package:barista_apps/routes/app_route_named.dart';
 import 'package:barista_apps/services/product_service.dart';
 import 'package:get/get.dart';
 
@@ -23,12 +22,8 @@ class ProductController extends GetxController {
       productsCat.value = prodCategory;
       deviceC.deviceValid(true);
     } catch (e) {
-      if (e.toString() == "401") {
-        Get.offAllNamed(AppRouteNamed.entry);
-      }
-
       deviceC.deviceValid(false);
-      Get.snackbar("Error", e.toString());
+      Get.snackbar("Error", "Device Not Registered");
     } finally {
       isLoading(false);
     }
@@ -36,6 +31,7 @@ class ProductController extends GetxController {
 
   Future<void> fetchProductDetail({required String id}) async {
     try {
+      productDetail(null);
       isDetailLoad(true);
       final product = await service.getProductDetail(id: id);
 

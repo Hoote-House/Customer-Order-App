@@ -19,7 +19,10 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   final CartController cartC = Get.find<CartController>(tag: 'cart');
-  final ProductController productC = Get.find<ProductController>(tag: 'device');
+
+  final ProductController productC = Get.find<ProductController>(
+    tag: 'products',
+  );
 
   int gridCountForWidth(double width) {
     if (width >= 1050) return 3;
@@ -51,74 +54,89 @@ class _HomePageState extends State<HomePage> {
       ),
       child: Scaffold(
         backgroundColor: Colors.grey[50],
-        body: SafeArea(
-          child: Obx(
-            () => Stack(
+        body: Obx(
+          () => SafeArea(
+            child: Stack(
               children: [
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    if (isTablet)
-                      Container(
-                        width: 220,
-                        padding: const EdgeInsets.all(12),
-                        child: Card(
-                          color: Colors.white,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
+                    Container(
+                      width: 420,
+                      height: double.maxFinite,
+                      decoration: BoxDecoration(
+                        image: DecorationImage(
+                          image: NetworkImage(
+                            "https://images.unsplash.com/photo-1509042239860-f550ce710b93?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&q=80&w=687",
                           ),
-                          child: Padding(
-                            padding: const EdgeInsets.all(12),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  'Category',
-                                  style: GoogleFonts.poppins(
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                                const SizedBox(height: 10),
-                                for (final c in categories.asMap().entries)
-                                  GestureDetector(
-                                    onTap: () {},
-                                    child: Container(
-                                      margin: const EdgeInsets.symmetric(
-                                        vertical: 6,
-                                      ),
-                                      padding: const EdgeInsets.symmetric(
-                                        vertical: 10,
-                                        horizontal: 8,
-                                      ),
-                                      decoration: BoxDecoration(
-                                        color: c.value.name == c.key
-                                            ? Colors.brown[50]
-                                            : Colors.transparent,
-                                        borderRadius: BorderRadius.circular(8),
-                                      ),
-                                      child: Text(c.value.name),
-                                    ),
-                                  ),
-                              ],
-                            ),
-                          ),
+                          fit: BoxFit.fitHeight,
                         ),
                       ),
+                      child: Stack(
+                        children: [
+                          Positioned(
+                            child: Card(
+                              color: Colors.white,
+                              child: IconButton(
+                                onPressed: () {},
+
+                                icon: Icon(Icons.arrow_back_sharp),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
 
                     Expanded(
                       child: Padding(
-                        padding: EdgeInsets.symmetric(
-                          horizontal: isTablet ? 24 : 12,
-                          vertical: 16,
-                        ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
+                        padding: const EdgeInsets.all(8.0),
+                        child: Stack(
                           children: [
-                            ...categories.map(
-                              (category) => _productCategory(
-                                gridCross,
-                                category,
-                                context,
+                            SingleChildScrollView(
+                              child: Padding(
+                                padding: const EdgeInsets.only(top: 50.0),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    ...categories.map(
+                                      (category) => _productCategory(
+                                        gridCross,
+                                        category,
+                                        context,
+                                      ),
+                                    ),
+                                    SizedBox(height: 100),
+                                  ],
+                                ),
+                              ),
+                            ),
+                            Positioned(
+                              top: 0,
+                              left: 0,
+                              right: 0,
+                              child: Container(
+                                color: Colors.grey[50],
+                                width: 10,
+                                height: 40,
+                                child: ListView(
+                                  scrollDirection: Axis.horizontal,
+                                  children: [
+                                    for (final c in productC.productsCat)
+                                      Padding(
+                                        padding: const EdgeInsets.only(
+                                          right: 8,
+                                        ),
+                                        child: ChoiceChip(
+                                          backgroundColor: Colors.white,
+                                          selectedColor: Colors.grey[200],
+                                          label: Text(c.name),
+                                          selected: false,
+                                          onSelected: (_) {},
+                                        ),
+                                      ),
+                                  ],
+                                ),
                               ),
                             ),
                           ],
@@ -127,6 +145,7 @@ class _HomePageState extends State<HomePage> {
                     ),
                   ],
                 ),
+
                 Positioned(
                   bottom: 16,
                   left: 0,
@@ -136,6 +155,7 @@ class _HomePageState extends State<HomePage> {
                       width: isTablet ? 520 : size.width * 0.95,
                       padding: const EdgeInsets.all(8),
                       child: Card(
+                        color: Colors.white,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(10),
                         ),
@@ -202,7 +222,7 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Column _productCategory(
+  Widget _productCategory(
     int gridCross,
     ProductCategory category,
     BuildContext context,
@@ -216,54 +236,32 @@ class _HomePageState extends State<HomePage> {
               category.name,
               style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
             ),
-            // if (!isTablet)
-            //   Expanded(
-            //     child: SizedBox(
-            //       height: 40,
-            //       child: ListView(
-            //         scrollDirection: Axis.horizontal,
-            //         children: [
-            //           for (final c in categories)
-            //             Padding(
-            //               padding: const EdgeInsets.only(
-            //                 right: 8,
-            //               ),
-            //               child: ChoiceChip(
-            //                 label: Text(c.name),
-            //                 selected: c.name == selectedCategory,
-            //                 onSelected: (_) => setState(
-            //                   () => selectedCategory = c.name,
-            //                 ),
-            //               ),
-            //             ),
-            //         ],
-            //       ),
-            //     ),
-            //   ),
           ],
         ),
         const SizedBox(height: 8),
         const Divider(),
         const SizedBox(height: 12),
-        // Grid produk
-        Expanded(
-          child: GridView.count(
-            crossAxisCount: gridCross,
-            crossAxisSpacing: 12,
-            mainAxisSpacing: 12,
-            childAspectRatio: 1.05,
-            children: category.products.map((p) {
-              return ProductCard(
-                product: p,
-                onTap: () {
-                  productC.fetchProductDetail(id: p.id);
+        GridView.count(
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          crossAxisCount: gridCross,
+          crossAxisSpacing: 12,
+          mainAxisSpacing: 12,
+          childAspectRatio: 1.05,
+          children: category.products.map((p) {
+            return ProductCard(
+              product: p,
+              onTap: () async {
+                await productC.fetchProductDetail(id: p.id);
+                if (productC.productDetail.value != null) {
                   showProductDialog(context);
-                },
-                priceText: formatRp(p.price),
-              );
-            }).toList(),
-          ),
+                }
+              },
+              priceText: formatRp(p.price),
+            );
+          }).toList(),
         ),
+        const SizedBox(height: 8),
       ],
     );
   }
@@ -295,7 +293,9 @@ class ProductCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return InkWell(
-      onTap: onTap,
+      onTap: () {
+        onTap();
+      },
       borderRadius: BorderRadius.circular(12),
       child: Container(
         decoration: BoxDecoration(

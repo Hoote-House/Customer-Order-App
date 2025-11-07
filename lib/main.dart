@@ -2,9 +2,13 @@ import 'package:barista_apps/bindings/root_binding.dart';
 import 'package:barista_apps/routes/app_route.dart';
 import 'package:barista_apps/routes/app_route_named.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get_navigation/get_navigation.dart';
 
 void main() {
+  WidgetsFlutterBinding.ensureInitialized();
+  SystemChrome.setEnabledSystemUIMode(SystemUiMode.leanBack);
+
   runApp(OrderCustomerCast());
 }
 

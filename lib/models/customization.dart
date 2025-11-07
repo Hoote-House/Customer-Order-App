@@ -21,8 +21,8 @@ class Customization {
 
   factory Customization.fromJson(Map<String, dynamic> json) {
     return Customization(
-      id: json['id'] as String,
-      name: json['name'] as String,
+      id: json['group_id'] as String,
+      name: json['group_name'] as String,
       sortOrder: json['sort_order'] as int,
       description: json['description'] as String? ?? '',
       isRequired: json['is_required'] as bool? ?? false,
@@ -40,7 +40,7 @@ class CustomizationOption {
   final String label;
   final bool isDefault;
   final int sortOrder;
-  final double price;
+  final int price;
   final bool isAvailable;
 
   CustomizationOption({
@@ -54,13 +54,11 @@ class CustomizationOption {
 
   factory CustomizationOption.fromJson(Map<String, dynamic> json) {
     return CustomizationOption(
-      id: json['optionid'] as String,
+      id: json['option_id'] as String,
       label: json['label'] as String,
       isDefault: json['is_default'] as bool? ?? false,
       sortOrder: json['sort_order'] as int? ?? 0,
-      price: (json['price'] is int)
-          ? (json['price'] as int).toDouble()
-          : (json['price'] as double? ?? 0.0),
+      price: json['store_price'] as int,
       isAvailable: json['is_available'] as bool? ?? true,
     );
   }

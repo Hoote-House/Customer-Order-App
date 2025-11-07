@@ -23,7 +23,7 @@ class ProductDetail {
   final String name;
   final String description;
   final String category;
-  final double price;
+  final int price;
   final bool isAvailable;
   final List<Customization> cutomizations;
   final String imageUrl;
@@ -41,15 +41,13 @@ class ProductDetail {
 
   factory ProductDetail.fromJson(Map<String, dynamic> json) {
     return ProductDetail(
-      id: json['optionid'] as String,
+      id: json['id'] as String,
       name: json['name'] as String,
       description: json['description'] as String,
       category: json['category_name'] as String,
-      price: (json['store_price'] is int)
-          ? (json['store_price'] as int).toDouble()
-          : (json['store_price'] as double? ?? 0.0),
+      price: json['store_price'] as int,
       isAvailable: json['is_available'] as bool? ?? true,
-      cutomizations: (json['cutomizations'] as List<dynamic>? ?? [])
+      cutomizations: (json['customizations'] as List<dynamic>? ?? [])
           .map((e) => Customization.fromJson(e as Map<String, dynamic>))
           .toList(),
       imageUrl: json['image_url'] as String,

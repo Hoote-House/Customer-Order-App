@@ -62,11 +62,13 @@ class ProductService {
       if (response.statusCode != 200) throw Exception();
 
       final data = response.data["data"];
+      print(data);
 
       ProductDetail product = ProductDetail.fromJson(
         data as Map<String, dynamic>,
       );
 
+      print(product);
       return product;
     } catch (e) {
       rethrow;

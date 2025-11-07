@@ -1,6 +1,7 @@
 import 'package:barista_apps/models/cart.dart';
 import 'package:barista_apps/models/customization.dart';
 import 'package:barista_apps/models/payment_method.dart';
+import 'package:barista_apps/models/product.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -18,7 +19,8 @@ class CartController extends GetxController {
     ),
   ];
 
-  void toggleCustomization(CustomizationOption option) {
+  void toggleCustomization(CustomizationOption? option) {
+    if (option == null) return;
     final cart = curCart.value!;
 
     var exist = cart.customizations.indexOf(option);
@@ -29,6 +31,15 @@ class CartController extends GetxController {
     }
 
     update();
+  }
+
+  void newCartEntry(ProductDetail product) {
+    curCart.value = CartEntry(
+      product: product,
+      quantity: 1,
+      note: "",
+      customizations: [],
+    );
   }
 
   void editNote(String value) {
@@ -57,14 +68,27 @@ class CartController extends GetxController {
   }
 
   int getTotal() {
-    double total = 0;
+    int total = 0;
 
     for (final e in cart) {
-      final addedPrice = e.customizations.fold(0.0, (v, e) => v + e.price);
+      final addedPrice = e.customizations.fold(0, (v, e) => v + e.price);
       final unit = e.product.price + addedPrice;
       total += unit * e.quantity;
     }
-    return total as int;
+    return total;
+  }
+
+  int getCurTotal() {
+    int total = 0;
+
+    final addedPrice = curCart.value!.customizations.fold(
+      0,
+      (v, e) => v + e.price,
+    );
+    final unit = curCart.value!.product.price + addedPrice;
+
+    total += unit * curCart.value!.quantity;
+    return total;
   }
 
   int getCount() {
