@@ -1,5 +1,6 @@
 import 'package:barista_apps/controllers/cart_controller.dart';
 import 'package:barista_apps/controllers/device_controller.dart';
+import 'package:barista_apps/controllers/payment_controller.dart';
 import 'package:barista_apps/controllers/product_controller.dart';
 import 'package:get/get.dart';
 
@@ -13,6 +14,12 @@ class RootBinding implements Bindings {
     );
 
     Get.put<CartController>(CartController(), tag: 'cart', permanent: true);
+
+    Get.put<PaymentController>(
+      PaymentController(),
+      tag: 'payment',
+      permanent: true,
+    );
 
     Get.put<ProductController>(
       ProductController(),

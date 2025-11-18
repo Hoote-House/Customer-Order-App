@@ -14,55 +14,53 @@ void showCartDialog(BuildContext context) {
     context: context,
     barrierDismissible: false,
     builder: (ctx) {
-      return StatefulBuilder(
-        builder: (context, setState) {
-          int total = cartC.getTotal();
-
-          return Dialog(
-            insetPadding: const EdgeInsets.symmetric(
-              horizontal: 24,
-              vertical: 24,
-            ),
-            child: Container(
-              width: 420,
-              padding: const EdgeInsets.all(18),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Row(
-                    children: [
-                      Icon(Icons.clear, color: Colors.red, size: 18),
-                      GestureDetector(
-                        onTap: () {
-                          cartC.clearCart();
-                        },
-                        child: Text(
-                          ' Clear',
-                          style: GoogleFonts.poppins(
-                            color: Colors.red,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 15,
-                          ),
+      return Obx(() {
+        return Dialog(
+          insetPadding: const EdgeInsets.symmetric(
+            horizontal: 24,
+            vertical: 24,
+          ),
+          child: Container(
+            width: 430,
+            padding: const EdgeInsets.all(18),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Row(
+                  children: [
+                    Icon(Icons.clear, color: Colors.red, size: 18),
+                    GestureDetector(
+                      onTap: () {
+                        cartC.clearCart();
+                      },
+                      child: Text(
+                        ' Clear',
+                        style: GoogleFonts.poppins(
+                          color: Colors.red,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 15,
                         ),
                       ),
-                      Spacer(),
-                      IconButton(
-                        icon: Icon(Icons.close),
-                        onPressed: () => Navigator.pop(context),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 8),
-                  if (cart.isEmpty)
-                    Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 32),
-                      child: Text(
-                        'Empty Cart',
-                        style: GoogleFonts.poppins(fontSize: 16),
-                      ),
-                    )
-                  else
-                    Column(
+                    ),
+                    Spacer(),
+                    IconButton(
+                      icon: Icon(Icons.close),
+                      onPressed: () => Navigator.pop(context),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 8),
+                if (cart.isEmpty)
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 32),
+                    child: Text(
+                      'Empty Cart',
+                      style: GoogleFonts.poppins(fontSize: 16),
+                    ),
+                  )
+                else
+                  Obx(
+                    () => Column(
                       children: [
                         ...cart.asMap().entries.map((entry) {
                           int idx = entry.key;
@@ -100,7 +98,7 @@ void showCartDialog(BuildContext context) {
                                         ),
                                       ),
                                       Text(
-                                        formatRp(e.product.price),
+                                        formatRp(cartC.getITotal(e)),
                                         style: GoogleFonts.poppins(
                                           fontWeight: FontWeight.bold,
                                           fontSize: 15,
@@ -118,13 +116,14 @@ void showCartDialog(BuildContext context) {
                                             Icons.add_circle,
                                             color: Colors.green,
                                           ),
-                                          onPressed: () =>
-                                              cartC.increaseQty(idx),
+                                          onPressed: () {
+                                            cartC.increaseQty(idx);
+                                          },
                                           iconSize: 24,
                                           padding: EdgeInsets.zero,
                                         ),
                                         Text(
-                                          '${e.quantity}',
+                                          e.quantity.value.toString(),
                                           style: GoogleFonts.poppins(
                                             fontWeight: FontWeight.bold,
                                             fontSize: 16,
@@ -160,61 +159,61 @@ void showCartDialog(BuildContext context) {
                         }).toList(),
                       ],
                     ),
-                  const SizedBox(height: 12),
-                  Divider(),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        'Total',
-                        style: GoogleFonts.poppins(
-                          fontWeight: FontWeight.w600,
-                          fontSize: 17,
-                        ),
-                      ),
-                      Text(
-                        formatRp(cartC.getTotal()),
-                        style: GoogleFonts.poppins(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 17,
-                        ),
-                      ),
-                    ],
                   ),
-                  const SizedBox(height: 18),
-                  SizedBox(
-                    width: double.infinity,
-                    height: 48,
-                    child: ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.brown[700],
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),
-                        ),
+                const SizedBox(height: 12),
+                Divider(),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      'Total',
+                      style: GoogleFonts.poppins(
+                        fontWeight: FontWeight.w600,
+                        fontSize: 17,
                       ),
-                      onPressed: cart.isEmpty
-                          ? null
-                          : () {
-                              // Order action here
-                              Navigator.pop(context);
-                              showPaymentDialog(context, cartC.getTotal());
-                            },
-                      child: Text(
-                        'ORDER',
-                        style: GoogleFonts.poppins(
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
-                          fontSize: 16,
-                        ),
+                    ),
+                    Text(
+                      formatRp(cartC.getTotal()),
+                      style: GoogleFonts.poppins(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 17,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 18),
+                SizedBox(
+                  width: double.infinity,
+                  height: 48,
+                  child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.brown[700],
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                    ),
+                    onPressed: cart.isEmpty
+                        ? null
+                        : () {
+                            // Order action here
+                            Navigator.pop(context);
+                            showPaymentDialog(context, cartC.getTotal());
+                          },
+                    child: Text(
+                      'ORDER',
+                      style: GoogleFonts.poppins(
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                        fontSize: 16,
                       ),
                     ),
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
-          );
-        },
-      );
+          ),
+        );
+      });
     },
   );
 }

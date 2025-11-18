@@ -8,6 +8,7 @@ import 'package:get/get.dart';
 class CartController extends GetxController {
   var cart = <CartEntry>[].obs;
   var curCart = Rxn<CartEntry>();
+  var isOnDialog = false.obs;
 
   var paymentSelected = "qris".obs;
   var paymentMethods = <PaymentMethod>[
@@ -29,16 +30,15 @@ class CartController extends GetxController {
     } else {
       cart.customizations.add(option);
     }
-
     update();
   }
 
   void newCartEntry(ProductDetail product) {
     curCart.value = CartEntry(
       product: product,
-      quantity: 1,
+      quantity: 1.obs,
       note: "",
-      customizations: [],
+      customizations: <CustomizationOption>[].obs,
     );
   }
 
@@ -73,8 +73,19 @@ class CartController extends GetxController {
     for (final e in cart) {
       final addedPrice = e.customizations.fold(0, (v, e) => v + e.price);
       final unit = e.product.price + addedPrice;
-      total += unit * e.quantity;
+      final qty = e.quantity.value;
+      total += unit * qty;
     }
+    return total;
+  }
+
+  int getITotal(CartEntry entry) {
+    int total = 0;
+
+    final addedPrice = entry.customizations.fold(0, (v, e) => v + e.price);
+    final unit = entry.product.price + addedPrice;
+
+    total += unit * entry.quantity.value;
     return total;
   }
 
@@ -87,37 +98,40 @@ class CartController extends GetxController {
     );
     final unit = curCart.value!.product.price + addedPrice;
 
-    total += unit * curCart.value!.quantity;
+    total += unit * curCart.value!.quantity.value;
     return total;
   }
 
   int getCount() {
     int count = 0;
     for (final e in cart) {
-      count += e.quantity;
+      count += e.quantity.value;
     }
     return count;
   }
 
   void increaseQty(int idx) {
-    cart[idx].quantity--;
+    cart[idx].quantity.value++;
     update();
   }
 
   void decreaseQty(int idx) {
-    cart[idx].quantity--;
+    if (cart[idx].quantity <= 1) return;
+
+    cart[idx].quantity.value--;
     update();
   }
 
   void increaseCurQty() {
-    curCart.value!.quantity--;
+    curCart.value!.quantity.value++;
+    print("${curCart.value!.quantity}");
     update();
   }
 
   void decreaseCurQty() {
-    if (curCart.value!.quantity < 1) return;
+    if (curCart.value!.quantity <= 1) return;
 
-    curCart.value!.quantity--;
+    curCart.value!.quantity.value--;
     update();
   }
 }

@@ -12,6 +12,9 @@ Widget radioModifier(
   // int cartIdx,
 ) {
   var option = Rxn<CustomizationOption>();
+  option.value = cartC.curCart.value!.customizations.firstWhereOrNull(
+    (e) => customization.options.contains(e),
+  );
   return Obx(
     () => Column(
       children: [

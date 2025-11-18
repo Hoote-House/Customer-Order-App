@@ -19,7 +19,6 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   final CartController cartC = Get.find<CartController>(tag: 'cart');
-
   final ProductController productC = Get.find<ProductController>(
     tag: 'products',
   );
@@ -252,6 +251,9 @@ class _HomePageState extends State<HomePage> {
             return ProductCard(
               product: p,
               onTap: () async {
+                if (cartC.isOnDialog.value) return;
+
+                cartC.isOnDialog(true);
                 await productC.fetchProductDetail(id: p.id);
                 if (productC.productDetail.value != null) {
                   showProductDialog(context);

@@ -67,7 +67,7 @@ class _EntryPageState extends State<EntryPage> {
               children: [
                 Text("Device ID: $deviceID"),
                 Text("Channel: ${AppConfig.deviceChannel}"),
-                Text("Not Registered Yet!"),
+                Text("Not Registered Or No Connection"),
                 ElevatedButton.icon(
                   onPressed: () {
                     (() async => await productC.fetchProductCategory())();

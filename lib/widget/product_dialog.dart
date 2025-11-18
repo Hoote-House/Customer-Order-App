@@ -12,6 +12,7 @@ void showProductDialog(BuildContext context) {
   final ProductController productC = Get.find<ProductController>(
     tag: 'products',
   );
+  var firstLoad = false.obs;
   showDialog(
     context: context,
     builder: (ctx) {
@@ -22,8 +23,11 @@ void showProductDialog(BuildContext context) {
 
         if (productC.productDetail.value != null) {
           final product = productC.productDetail.value!;
+          if (!firstLoad.value) {
+            cartC.newCartEntry(product);
+          }
 
-          cartC.newCartEntry(product);
+          firstLoad(true);
           final curCart = cartC.curCart.value!;
 
           return Dialog(
@@ -89,7 +93,6 @@ void showProductDialog(BuildContext context) {
                           ? radioModifier(e, cartC)
                           : checkboxModifier(e, cartC),
                     ),
-                    Text("${product.cutomizations.length}"),
                     const Divider(),
                     Align(
                       alignment: Alignment.centerLeft,
@@ -141,29 +144,35 @@ void showProductDialog(BuildContext context) {
                                 borderRadius: BorderRadius.circular(20),
                                 color: Colors.green[50],
                               ),
-                              child: Row(
-                                children: [
-                                  IconButton(
-                                    icon: const Icon(
-                                      Icons.remove,
-                                      color: Colors.red,
+                              child: Obx(
+                                () => Row(
+                                  children: [
+                                    IconButton(
+                                      icon: const Icon(
+                                        Icons.remove,
+                                        color: Colors.red,
+                                      ),
+                                      onPressed: () {
+                                        cartC.decreaseCurQty();
+                                      },
                                     ),
-                                    onPressed: cartC.decreaseCurQty,
-                                  ),
-                                  Text(
-                                    '${curCart.quantity}',
-                                    style: GoogleFonts.poppins(
-                                      fontWeight: FontWeight.bold,
+                                    Text(
+                                      curCart.quantity.value.toString(),
+                                      style: GoogleFonts.poppins(
+                                        fontWeight: FontWeight.bold,
+                                      ),
                                     ),
-                                  ),
-                                  IconButton(
-                                    icon: const Icon(
-                                      Icons.add,
-                                      color: Colors.green,
+                                    IconButton(
+                                      icon: const Icon(
+                                        Icons.add,
+                                        color: Colors.green,
+                                      ),
+                                      onPressed: () {
+                                        cartC.increaseCurQty();
+                                      },
                                     ),
-                                    onPressed: cartC.increaseCurQty,
-                                  ),
-                                ],
+                                  ],
+                                ),
                               ),
                             ),
                           ],
@@ -202,5 +211,7 @@ void showProductDialog(BuildContext context) {
         return Center(child: Text("Can't Load"));
       });
     },
-  );
+  ).then((_) {
+    cartC.isOnDialog(false);
+  });
 }
